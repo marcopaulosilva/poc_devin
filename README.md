@@ -31,3 +31,27 @@ go run cmd/app/main.go
 ```
 
 This will fetch user data from JSONPlaceholder API and display it in the console.
+
+## Docker Setup
+
+You can run this application in a Docker container:
+
+### Building the Docker Image
+
+```bash
+docker build -t poc_devin .
+```
+
+### Running with Docker
+
+```bash
+docker run -e RIOT_API_KEY=your_api_key poc_devin
+```
+
+### Running with Docker Compose
+
+```bash
+RIOT_API_KEY=your_api_key docker-compose up
+```
+
+Make sure to replace `your_api_key` with your actual Riot API key.
