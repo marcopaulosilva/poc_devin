@@ -25,14 +25,14 @@ func main() {
 	ctx := context.Background()
 	
 	log.Info("Example 1: Fetching a specific user")
-	userId := "1" // Example user ID
+	userId := "1" // Example user ID (as string for API call)
 	user, err := userUseCase.GetUser(ctx, userId)
 	if err != nil {
 		log.Error("Failed to get user: %v", err)
 		os.Exit(1)
 	}
 	fmt.Printf("\nUser details:\n")
-	fmt.Printf("  ID: %s\n", user.ID)
+	fmt.Printf("  ID: %d\n", user.ID)
 	fmt.Printf("  Name: %s\n\n", user.Name)
 	
 	log.Info("Example 2: Fetching all users")
@@ -45,7 +45,7 @@ func main() {
 	fmt.Printf("\nAll users (%d):\n", len(users))
 	for i, u := range users {
 		if i < 5 { // Only print first 5 users to avoid cluttering the console
-			fmt.Printf("  %d. %s (ID: %s)\n", i+1, u.Name, u.ID)
+			fmt.Printf("  %d. %s (ID: %d)\n", i+1, u.Name, u.ID)
 		}
 	}
 	
