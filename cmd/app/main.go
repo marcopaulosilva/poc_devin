@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sort"
 	"time"
 
 	"github.com/marcopaulosilva/poc_devin/internal/domain/usecases"
@@ -16,43 +17,37 @@ func main() {
 	log := logger.NewConsoleLogger()
 	httpClient := client.NewHTTPClient(10 * time.Second)
 	
-	baseURL := "https://jsonplaceholder.typicode.com"
+	apiKey := os.Getenv("RIOT_API_KEY")
+	if apiKey == "" {
+		log.Error("RIOT_API_KEY environment variable not set")
+		os.Exit(1)
+	}
 	
-	userRepo := httpRepo.NewUserRepository(httpClient, log, baseURL)
+	baseURL := "https://na1.api.riotgames.com"
 	
-	userUseCase := usecases.NewUserUseCase(userRepo)
+	championRepo := httpRepo.NewChampionRepository(httpClient, log, baseURL, apiKey)
+	
+	championUseCase := usecases.NewChampionUseCase(championRepo)
 	
 	ctx := context.Background()
 	
-	log.Info("Example 1: Fetching a specific user")
-	userId := "1" // Example user ID (as string for API call)
-	user, err := userUseCase.GetUser(ctx, userId)
+	log.Info("Fetching all League of Legends champions")
+	champions, err := championUseCase.GetAllChampions(ctx)
 	if err != nil {
-		log.Error("Failed to get user: %v", err)
-		os.Exit(1)
-	}
-	fmt.Printf("\nUser details:\n")
-	fmt.Printf("  ID: %d\n", user.ID)
-	fmt.Printf("  Name: %s\n\n", user.Name)
-	
-	log.Info("Example 2: Fetching all users")
-	users, err := userUseCase.GetUsers(ctx)
-	if err != nil {
-		log.Error("Failed to get users: %v", err)
+		log.Error("Failed to get champions: %v", err)
 		os.Exit(1)
 	}
 	
-	fmt.Printf("\nAll users (%d):\n", len(users))
-	for i, u := range users {
-		if i < 5 { // Only print first 5 users to avoid cluttering the console
-			fmt.Printf("  %d. %s (ID: %d)\n", i+1, u.Name, u.ID)
-		}
+	sort.Slice(champions, func(i, j int) bool {
+		return champions[i].Name < champions[j].Name
+	})
+	
+	fmt.Printf("\nAll League of Legends Champions (%d):\n\n", len(champions))
+	
+	for i, champion := range champions {
+		fmt.Printf("  %3d. %-15s - %s\n", i+1, champion.Name, champion.Title)
 	}
 	
-	if len(users) > 5 {
-		fmt.Printf("  ... and %d more users\n", len(users)-5)
-	}
-	fmt.Println()
-	
+	fmt.Println("\nChampion data retrieved from Riot Games Data Dragon API")
 	log.Success("Application completed successfully")
 }
