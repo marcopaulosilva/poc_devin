@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/marcopaulosilva/poc_devin/internal/domain/entities"
 	"github.com/marcopaulosilva/poc_devin/internal/infrastructure/client"
@@ -42,15 +43,43 @@ func (r *ChampionRepository) GetAllChampions(ctx context.Context) ([]entities.Ch
 
 	champions := make([]entities.Champion, 0, len(championData.Data))
 	for _, info := range championData.Data {
+		detailURL := fmt.Sprintf("https://ddragon.leagueoflegends.com/cdn/15.7.1/data/en_US/champion/%s.json", info.ID)
+		r.logger.Info("Fetching detailed data for champion: %s", info.Name)
+		
+		detailData, err := r.httpClient.Get(ctx, detailURL)
+		if err != nil {
+			r.logger.Error("Failed to fetch detailed data for champion %s: %v", info.Name, err)
+			continue
+		}
+		
+		var detailChampionData struct {
+			Data map[string]struct {
+				Stats struct {
+					Movespeed float64 `json:"movespeed"`
+				} `json:"stats"`
+			} `json:"data"`
+		}
+		
+		if err := client.ParseJSON(detailData, &detailChampionData); err != nil {
+			r.logger.Error("Failed to parse detailed champion data for %s: %v", info.Name, err)
+			continue
+		}
+		
+		movespeed := 0.0
+		if champData, ok := detailChampionData.Data[info.ID]; ok {
+			movespeed = champData.Stats.Movespeed
+		}
+		
 		champion := entities.Champion{
-			ID:    info.ID,
-			Key:   info.Key,
-			Name:  info.Name,
-			Title: info.Title,
+			ID:           info.ID,
+			Key:          info.Key,
+			Name:         info.Name,
+			Title:        info.Title,
+			MovementSpeed: movespeed,
 		}
 		champions = append(champions, champion)
 	}
 
-	r.logger.Success("Successfully fetched %d champions", len(champions))
+	r.logger.Success("Successfully fetched %d champions with movement speed data", len(champions))
 	return champions, nil
 }

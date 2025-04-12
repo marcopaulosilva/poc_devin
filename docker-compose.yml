@@ -8,3 +8,12 @@ services:
     environment:
       - RIOT_API_KEY=${RIOT_API_KEY}
     restart: on-failure
+
+  movement-speed:
+    build:
+      context: .
+      dockerfile: Dockerfile.movement-speed
+    environment:
+      - RIOT_API_KEY=${RIOT_API_KEY}
+    restart: on-failure
+
