@@ -22,7 +22,7 @@ The project follows clean architecture with the following layers:
 - Clean architecture implementation
 - HTTP client for making external API requests
 - Formatted console output with colored logging
-- Example application demonstrating user data retrieval
+- Example application demonstrating League of Legends champion data retrieval
 
 ## Running the Application
 
@@ -30,7 +30,7 @@ The project follows clean architecture with the following layers:
 go run cmd/app/main.go
 ```
 
-This will fetch user data from JSONPlaceholder API and display it in the console.
+This will fetch League of Legends champion data from Riot Games API and display it in the console.
 
 ## Docker Setup
 
