@@ -1,8 +1,8 @@
 # Go Clean Architecture Example
 
-This project demonstrates two Go applications built using clean architecture principles:
-1. Main application: Displays League of Legends champions in alphabetical order
-2. Movement-speed application: Sorts and displays champions by their movement speed
+This project demonstrates Go applications built using clean architecture principles:
+1. Movement-speed application: Sorts and displays champions by their movement speed
+2. REST API: Provides champion movement speed data via HTTP endpoints
 
 ## Project Structure
 
@@ -24,9 +24,9 @@ The project follows clean architecture with the following layers:
 - Clean architecture implementation
 - HTTP client for making external API requests
 - Formatted console output with colored logging
-- Two applications demonstrating League of Legends champion data retrieval:
-  - Main application: Lists champions alphabetically
+- Applications demonstrating League of Legends champion data retrieval:
   - Movement-speed application: Ranks champions by movement speed
+  - REST API: Provides champion data through HTTP endpoints
 
 ## Prerequisites
 
@@ -49,18 +49,6 @@ The project follows clean architecture with the following layers:
 
 ## Running the Applications with Go
 
-### Main Application (Alphabetical Champions List)
-
-```bash
-# Set your Riot API key
-export RIOT_API_KEY=your_api_key
-
-# Run the application
-go run cmd/app/main.go
-```
-
-This will fetch League of Legends champion data from Riot Games API and display it alphabetically in the console.
-
 ### Movement-Speed Application (Champions Sorted by Movement Speed)
 
 ```bash
@@ -73,21 +61,47 @@ go run cmd/movement-speed/main.go
 
 This will fetch League of Legends champion data and display them sorted by movement speed (fastest to slowest).
 
+### REST API (Champion Movement Speed Endpoint)
+
+```bash
+# Set your Riot API key
+export RIOT_API_KEY=your_api_key
+
+# Run the API server
+go run cmd/api/main.go
+```
+
+This will start a REST API server on port 8080 with the following endpoints:
+
+- `GET /api/champions/movement-speed`: Returns champions sorted by movement speed in JSON format
+- `GET /health`: Health check endpoint that returns "OK" if the server is running
+
+Example API response from `/api/champions/movement-speed`:
+
+```json
+{
+  "count": 12,
+  "champions": [
+    {
+      "rank": 1,
+      "id": "11",
+      "name": "Kassadin",
+      "title": "the Void Walker",
+      "movementSpeed": 355
+    },
+    {
+      "rank": 2,
+      "id": "6",
+      "name": "Fizz",
+      "title": "the Tidal Trickster",
+      "movementSpeed": 350
+    },
+    ...
+  ]
+}
+```
+
 ## Docker Setup
-
-### Main Application
-
-#### Building the Docker Image
-
-```bash
-docker build -t poc_devin .
-```
-
-#### Running with Docker
-
-```bash
-docker run -e RIOT_API_KEY=your_api_key poc_devin
-```
 
 ### Movement-Speed Application
 
@@ -103,7 +117,21 @@ docker build -t movement-speed -f Dockerfile.movement-speed .
 docker run -e RIOT_API_KEY=your_api_key movement-speed
 ```
 
-### Running Both Applications with Docker Compose
+### REST API Application
+
+#### Building the Docker Image
+
+```bash
+docker build -t api -f Dockerfile.api .
+```
+
+#### Running with Docker
+
+```bash
+docker run -e RIOT_API_KEY=your_api_key -p 8080:8080 api
+```
+
+### Running the Applications with Docker Compose
 
 Docker Compose allows you to run both applications with a single command:
 
@@ -111,7 +139,7 @@ Docker Compose allows you to run both applications with a single command:
 # Set your Riot API key in the environment
 export RIOT_API_KEY=your_api_key
 
-# Run both applications
+# Run the application
 docker-compose up
 ```
 
@@ -167,10 +195,10 @@ docker info
 
 ```bash
 # For building
-docker build --platform linux/amd64 -t poc_devin .
+docker build --platform linux/amd64 -t movement-speed -f Dockerfile.movement-speed .
 
 # For running
-docker run --platform linux/amd64 -e RIOT_API_KEY=your_api_key poc_devin
+docker run --platform linux/amd64 -e RIOT_API_KEY=your_api_key movement-speed
 ```
 
 #### API Key Issues
