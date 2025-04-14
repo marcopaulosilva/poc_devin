@@ -1,8 +1,7 @@
 # Go Clean Architecture Example
 
-This project demonstrates two Go applications built using clean architecture principles:
-1. Main application: Displays League of Legends champions in alphabetical order
-2. Movement-speed application: Sorts and displays champions by their movement speed
+This project demonstrates a Go application built using clean architecture principles:
+1. Movement-speed application: Sorts and displays champions by their movement speed
 
 ## Project Structure
 
@@ -24,8 +23,7 @@ The project follows clean architecture with the following layers:
 - Clean architecture implementation
 - HTTP client for making external API requests
 - Formatted console output with colored logging
-- Two applications demonstrating League of Legends champion data retrieval:
-  - Main application: Lists champions alphabetically
+- Application demonstrating League of Legends champion data retrieval:
   - Movement-speed application: Ranks champions by movement speed
 
 ## Prerequisites
@@ -47,19 +45,7 @@ The project follows clean architecture with the following layers:
 
 3. Obtain a Riot API Key from [Riot Developer Portal](https://developer.riotgames.com/)
 
-## Running the Applications with Go
-
-### Main Application (Alphabetical Champions List)
-
-```bash
-# Set your Riot API key
-export RIOT_API_KEY=your_api_key
-
-# Run the application
-go run cmd/app/main.go
-```
-
-This will fetch League of Legends champion data from Riot Games API and display it alphabetically in the console.
+## Running the Application with Go
 
 ### Movement-Speed Application (Champions Sorted by Movement Speed)
 
@@ -75,20 +61,6 @@ This will fetch League of Legends champion data and display them sorted by movem
 
 ## Docker Setup
 
-### Main Application
-
-#### Building the Docker Image
-
-```bash
-docker build -t poc_devin .
-```
-
-#### Running with Docker
-
-```bash
-docker run -e RIOT_API_KEY=your_api_key poc_devin
-```
-
 ### Movement-Speed Application
 
 #### Building the Docker Image
@@ -103,15 +75,15 @@ docker build -t movement-speed -f Dockerfile.movement-speed .
 docker run -e RIOT_API_KEY=your_api_key movement-speed
 ```
 
-### Running Both Applications with Docker Compose
+### Running the Application with Docker Compose
 
-Docker Compose allows you to run both applications with a single command:
+Docker Compose allows you to run the application with a single command:
 
 ```bash
 # Set your Riot API key in the environment
 export RIOT_API_KEY=your_api_key
 
-# Run both applications
+# Run the application
 docker-compose up
 ```
 
@@ -167,10 +139,10 @@ docker info
 
 ```bash
 # For building
-docker build --platform linux/amd64 -t poc_devin .
+docker build --platform linux/amd64 -t movement-speed -f Dockerfile.movement-speed .
 
 # For running
-docker run --platform linux/amd64 -e RIOT_API_KEY=your_api_key poc_devin
+docker run --platform linux/amd64 -e RIOT_API_KEY=your_api_key movement-speed
 ```
 
 #### API Key Issues
