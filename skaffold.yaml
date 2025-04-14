@@ -1,0 +1,14 @@
+apiVersion: skaffold/v2beta29
+kind: Config
+build:
+  artifacts:
+  - image: movement-speed-api
+    context: .
+    docker:
+      dockerfile: Dockerfile.api
+deploy:
+  kubectl:
+    manifests:
+    - kubernetes/api-deployment.yaml
+    - kubernetes/api-service.yaml
+    - kubernetes/riot-api-secret.yaml

@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movement-speed-api
+  labels:
+    app: movement-speed-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movement-speed-api
+  template:
+    metadata:
+      labels:
+        app: movement-speed-api
+    spec:
+      containers:
+      - name: movement-speed-api
+        image: movement-speed-api:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: RIOT_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: riot-api-secret
+              key: api-key
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
