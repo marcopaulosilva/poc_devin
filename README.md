@@ -1,7 +1,8 @@
 # Go Clean Architecture Example
 
-This project demonstrates a Go application built using clean architecture principles:
+This project demonstrates Go applications built using clean architecture principles:
 1. Movement-speed application: Sorts and displays champions by their movement speed
+2. REST API: Provides champion movement speed data via HTTP endpoints
 
 ## Project Structure
 
@@ -23,8 +24,9 @@ The project follows clean architecture with the following layers:
 - Clean architecture implementation
 - HTTP client for making external API requests
 - Formatted console output with colored logging
-- Application demonstrating League of Legends champion data retrieval:
+- Applications demonstrating League of Legends champion data retrieval:
   - Movement-speed application: Ranks champions by movement speed
+  - REST API: Provides champion data through HTTP endpoints
 
 ## Prerequisites
 
@@ -45,7 +47,7 @@ The project follows clean architecture with the following layers:
 
 3. Obtain a Riot API Key from [Riot Developer Portal](https://developer.riotgames.com/)
 
-## Running the Application with Go
+## Running the Applications with Go
 
 ### Movement-Speed Application (Champions Sorted by Movement Speed)
 
@@ -58,6 +60,46 @@ go run cmd/movement-speed/main.go
 ```
 
 This will fetch League of Legends champion data and display them sorted by movement speed (fastest to slowest).
+
+### REST API (Champion Movement Speed Endpoint)
+
+```bash
+# Set your Riot API key
+export RIOT_API_KEY=your_api_key
+
+# Run the API server
+go run cmd/api/main.go
+```
+
+This will start a REST API server on port 8080 with the following endpoints:
+
+- `GET /api/champions/movement-speed`: Returns champions sorted by movement speed in JSON format
+- `GET /health`: Health check endpoint that returns "OK" if the server is running
+
+Example API response from `/api/champions/movement-speed`:
+
+```json
+{
+  "count": 12,
+  "champions": [
+    {
+      "rank": 1,
+      "id": "11",
+      "name": "Kassadin",
+      "title": "the Void Walker",
+      "movementSpeed": 355
+    },
+    {
+      "rank": 2,
+      "id": "6",
+      "name": "Fizz",
+      "title": "the Tidal Trickster",
+      "movementSpeed": 350
+    },
+    ...
+  ]
+}
+```
 
 ## Docker Setup
 
@@ -75,9 +117,23 @@ docker build -t movement-speed -f Dockerfile.movement-speed .
 docker run -e RIOT_API_KEY=your_api_key movement-speed
 ```
 
-### Running the Application with Docker Compose
+### REST API Application
 
-Docker Compose allows you to run the application with a single command:
+#### Building the Docker Image
+
+```bash
+docker build -t api -f Dockerfile.api .
+```
+
+#### Running with Docker
+
+```bash
+docker run -e RIOT_API_KEY=your_api_key -p 8080:8080 api
+```
+
+### Running the Applications with Docker Compose
+
+Docker Compose allows you to run both applications with a single command:
 
 ```bash
 # Set your Riot API key in the environment
