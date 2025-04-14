@@ -3,6 +3,7 @@
 This project demonstrates Go applications built using clean architecture principles:
 1. Movement-speed application: Sorts and displays champions by their movement speed
 2. REST API: Provides champion movement speed data via HTTP endpoints
+3. Kubernetes deployment: Run the application in a Kubernetes cluster
 
 ## Project Structure
 
@@ -141,6 +142,108 @@ export RIOT_API_KEY=your_api_key
 
 # Run the application
 docker-compose up
+```
+
+## Kubernetes Setup
+
+This project can be deployed to a Kubernetes cluster, allowing for scalable and resilient operation of the movement speed API.
+
+### Prerequisites for Mac
+
+1. **Install Docker Desktop**
+
+   Download and install [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop)
+
+2. **Enable Kubernetes in Docker Desktop**
+
+   - Open Docker Desktop
+   - Go to Preferences > Kubernetes
+   - Check "Enable Kubernetes"
+   - Click "Apply & Restart"
+
+3. **Install kubectl**
+
+   ```bash
+   brew install kubectl
+   ```
+
+4. **Install Skaffold** (for local development)
+
+   ```bash
+   brew install skaffold
+   ```
+
+### Configuring the Kubernetes Deployment
+
+1. **Create a Secret for the Riot API Key**
+
+   ```bash
+   # Replace YOUR_API_KEY with your actual Riot API key
+   kubectl create secret generic riot-api-secret --from-literal=api-key=YOUR_API_KEY
+   ```
+
+   Alternatively, you can use the provided YAML file:
+
+   ```bash
+   # First, base64 encode your API key
+   echo -n "YOUR_API_KEY" | base64
+   
+   # Edit the kubernetes/riot-api-secret.yaml file and replace the placeholder value
+   # Then apply the secret
+   kubectl apply -f kubernetes/riot-api-secret.yaml
+   ```
+
+2. **Deploy the Application**
+
+   ```bash
+   kubectl apply -f kubernetes/api-deployment.yaml
+   kubectl apply -f kubernetes/api-service.yaml
+   ```
+
+### Running with Skaffold (Local Development)
+
+Skaffold automates the workflow for building, pushing, and deploying your application:
+
+```bash
+# Make sure you're in the project root directory
+skaffold dev
+```
+
+This will:
+- Build the Docker image
+- Deploy to your local Kubernetes cluster
+- Stream logs from deployed pods
+- Automatically redeploy when files change
+
+### Accessing the API
+
+Once deployed, you can access the API using:
+
+```bash
+# Get the service URL (if using LoadBalancer type)
+kubectl get service movement-speed-api
+
+# For local development with Docker Desktop, the service is usually available at:
+curl http://localhost:80/api/champions/movement-speed
+
+# Health check
+curl http://localhost:80/health
+```
+
+### Monitoring the Deployment
+
+```bash
+# Check deployment status
+kubectl get deployments
+
+# Check pods
+kubectl get pods
+
+# View logs
+kubectl logs -l app=movement-speed-api
+
+# Describe a pod for detailed information
+kubectl describe pod <pod-name>
 ```
 
 Or pass the API key directly:
