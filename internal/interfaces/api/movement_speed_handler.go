@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/marcopaulosilva/poc_devin/internal/domain/entities"
 	"github.com/marcopaulosilva/poc_devin/internal/domain/usecases"
 	"github.com/marcopaulosilva/poc_devin/internal/infrastructure/logger"
 )
