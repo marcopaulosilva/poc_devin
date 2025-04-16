@@ -1,0 +1,15 @@
+FROM localstack/localstack:latest
+
+# Add initialization scripts
+COPY scripts/init-localstack.sh /docker-entrypoint-initaws.d/
+
+# Set environment variables
+ENV SERVICES=rds
+ENV DEBUG=1
+ENV DATA_DIR=/tmp/localstack/data
+ENV AWS_DEFAULT_REGION=us-east-1
+ENV AWS_ACCESS_KEY_ID=test
+ENV AWS_SECRET_ACCESS_KEY=test
+
+# Expose LocalStack edge port
+EXPOSE 4566
