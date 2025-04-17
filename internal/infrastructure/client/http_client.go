@@ -11,6 +11,7 @@ import (
 
 type HTTPClient interface {
 	Get(ctx context.Context, url string) ([]byte, error)
+	Do(req *http.Request) (*http.Response, error)
 }
 
 type HTTPClientImpl struct {
@@ -47,6 +48,10 @@ func (c *HTTPClientImpl) Get(ctx context.Context, url string) ([]byte, error) {
 	}
 
 	return body, nil
+}
+
+func (c *HTTPClientImpl) Do(req *http.Request) (*http.Response, error) {
+	return c.client.Do(req)
 }
 
 func ParseJSON(data []byte, v interface{}) error {
