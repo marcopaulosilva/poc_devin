@@ -225,14 +225,14 @@ This project can be deployed to Kubernetes clusters, allowing for scalable and r
    kubectl apply -f kubernetes/riot-api-secret.yaml -n api-cluster
    ```
    
-3. **Deploy the Consumer Application with LocalStack (Second Cluster)**
+3. **Deploy the Consumer Application with PostgreSQL (Second Cluster)**
 
    ```bash
    # Create a namespace for the consumer application
    kubectl create namespace consumer-cluster
    
-   # Apply the LocalStack deployment
-   kubectl apply -f kubernetes/consumer/localstack.yaml -n consumer-cluster
+   # Apply the PostgreSQL deployment and service
+   kubectl apply -f kubernetes/consumer/postgres.yaml -n consumer-cluster
    
    # Apply the consumer deployment
    kubectl apply -f kubernetes/consumer/deployment.yaml -n consumer-cluster
