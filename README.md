@@ -341,6 +341,27 @@ http://movement-speed-api.api-cluster.svc.cluster.local
 
 This allows the consumer application to access the API across cluster boundaries.
 
+### Visualizing Kubernetes with Dashboard
+
+To get a visual interface for your Kubernetes clusters:
+
+1. **Start Minikube** (if using it)
+   ```bash
+   minikube start
+   ```
+
+2. **Enable the Dashboard Addon**
+   ```bash
+   minikube addons enable dashboard
+   ```
+
+3. **Launch the Dashboard**
+   ```bash
+   minikube dashboard
+   ```
+
+This will open a web browser with the Kubernetes Dashboard, allowing you to visualize and manage your clusters, deployments, pods, and other resources.
+
 
 Or pass the API key directly:
 
