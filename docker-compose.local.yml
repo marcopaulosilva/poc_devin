@@ -25,6 +25,8 @@ services:
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
+      - DB_HOST=localstack
+      - DB_PORT=5432
       - DB_NAME=champions
       - SYNC_INTERVAL=60
     depends_on:
