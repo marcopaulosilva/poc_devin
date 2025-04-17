@@ -25,7 +25,9 @@ spec:
         - name: DEBUG
           value: "1"
         - name: DATA_DIR
-          value: "/tmp/localstack/data"
+          value: "/var/lib/localstack/data"
+        - name: TMPDIR
+          value: "/var/lib/localstack/tmp"
         - name: DOCKER_HOST
           value: ""
         - name: DISABLE_CORS_CHECKS
@@ -46,7 +48,7 @@ spec:
           value: "test"
         volumeMounts:
         - name: localstack-data
-          mountPath: /tmp/localstack
+          mountPath: /var/lib/localstack
         resources:
           limits:
             cpu: "1000m"
