@@ -29,6 +29,10 @@ spec:
           value: "test"
         - name: AWS_SECRET_ACCESS_KEY
           value: "test"
+        - name: DB_HOST
+          value: "localstack.default.svc.cluster.local"
+        - name: DB_PORT
+          value: "5432"
         - name: DB_NAME
           value: "champions"
         - name: SYNC_INTERVAL
