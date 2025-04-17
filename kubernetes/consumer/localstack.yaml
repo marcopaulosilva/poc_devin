@@ -26,6 +26,18 @@ spec:
           value: "1"
         - name: DATA_DIR
           value: "/tmp/localstack/data"
+        - name: DOCKER_HOST
+          value: ""
+        - name: DISABLE_CORS_CHECKS
+          value: "1"
+        - name: DISABLE_CUSTOM_CORS_S3
+          value: "1"
+        - name: SKIP_SSL_CERT_DOWNLOAD
+          value: "1"
+        - name: LAMBDA_EXECUTOR
+          value: "local"
+        - name: LOCALSTACK_HOST
+          value: "localhost"
         - name: AWS_DEFAULT_REGION
           value: "us-east-1"
         - name: AWS_ACCESS_KEY_ID

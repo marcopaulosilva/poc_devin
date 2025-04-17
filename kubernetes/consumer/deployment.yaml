@@ -22,7 +22,7 @@ spec:
         - name: API_BASE_URL
           value: "http://movement-speed-api.api-cluster.svc.cluster.local"
         - name: AWS_ENDPOINT
-          value: "http://localstack.default.svc.cluster.local:4566"
+          value: "http://localstack.consumer-cluster.svc.cluster.local:4566"
         - name: AWS_REGION
           value: "us-east-1"
         - name: AWS_ACCESS_KEY_ID
@@ -30,7 +30,7 @@ spec:
         - name: AWS_SECRET_ACCESS_KEY
           value: "test"
         - name: DB_HOST
-          value: "localstack.default.svc.cluster.local"
+          value: "localstack.consumer-cluster.svc.cluster.local"
         - name: DB_PORT
           value: "5432"
         - name: DB_NAME
