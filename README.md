@@ -193,6 +193,12 @@ This project can be deployed to Kubernetes clusters, allowing for scalable and r
    brew install skaffold
    ```
 
+5. **Set Docker Desktop as your Kubernetes context**
+
+   ```bash
+   kubectl config use-context docker-desktop
+   ```
+
 ### Configuring the Kubernetes Deployment
 
 1. **Create a Secret for the Riot API Key**
