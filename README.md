@@ -279,13 +279,29 @@ curl http://localhost:80/api/champions/movement-speed
 curl http://localhost:80/health
 ```
 
-#### Accessing LocalStack RDS (Second Cluster)
+#### Accessing PostgreSQL Database (Second Cluster)
 
-You can interact with the LocalStack RDS instance using the AWS CLI:
+You can interact with the PostgreSQL database using kubectl:
+
+```bash
+# Get the PostgreSQL pod name
+POSTGRES_POD=$(kubectl get pods -l app=postgres -n consumer-cluster -o jsonpath='{.items[0].metadata.name}')
+
+# List all champions in the database
+kubectl exec -it $POSTGRES_POD -n consumer-cluster -- psql -U postgres -d champions -c "SELECT * FROM champions ORDER BY rank LIMIT 10;"
+
+# Count total champions in the database
+kubectl exec -it $POSTGRES_POD -n consumer-cluster -- psql -U postgres -d champions -c "SELECT COUNT(*) FROM champions;"
+```
+
+If you're using LocalStack for AWS RDS emulation, you can interact with it using the AWS CLI:
 
 ```bash
 # Configure AWS CLI to use LocalStack endpoint
 export AWS_ENDPOINT_URL=http://localhost:4566
+export AWS_DEFAULT_REGION=us-east-1
+export AWS_ACCESS_KEY_ID=test
+export AWS_SECRET_ACCESS_KEY=test
 
 # List RDS instances
 aws rds describe-db-instances --endpoint-url=$AWS_ENDPOINT_URL
@@ -345,7 +361,7 @@ This allows the consumer application to access the API across cluster boundaries
 
 To get a visual interface for your Kubernetes clusters:
 
-1. **Start Minikube** (if using it)
+1. **Start Minikube** (if not already running)
    ```bash
    minikube start
    ```
@@ -361,6 +377,21 @@ To get a visual interface for your Kubernetes clusters:
    ```
 
 This will open a web browser with the Kubernetes Dashboard, allowing you to visualize and manage your clusters, deployments, pods, and other resources.
+
+### Cleaning Up Temporary Files
+
+If you encounter issues with LocalStack or other services due to temporary files:
+
+```bash
+# Remove LocalStack temporary directory
+sudo rm -rf /tmp/localstack
+
+# Remove Docker volumes (if needed)
+docker volume prune -f
+
+# Restart Docker (if needed)
+sudo systemctl restart docker
+```
 
 
 Or pass the API key directly:
