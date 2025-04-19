@@ -3,7 +3,8 @@
 This project demonstrates Go applications built using clean architecture principles:
 1. Movement-speed application: Sorts and displays champions by their movement speed
 2. REST API: Provides champion movement speed data via HTTP endpoints
-3. Kubernetes deployment: Run the application in a Kubernetes cluster
+3. Consumer application: Retrieves data from the API and persists it to AWS RDS (PostgreSQL)
+4. Kubernetes deployment: Run the applications in separate Kubernetes clusters
 
 ## Project Structure
 
@@ -28,6 +29,7 @@ The project follows clean architecture with the following layers:
 - Applications demonstrating League of Legends champion data retrieval:
   - Movement-speed application: Ranks champions by movement speed
   - REST API: Provides champion data through HTTP endpoints
+  - Consumer application: Retrieves data from the API and persists it to AWS RDS (PostgreSQL)
 
 ## Prerequisites
 
@@ -134,7 +136,7 @@ docker run -e RIOT_API_KEY=your_api_key -p 8080:8080 api
 
 ### Running the Applications with Docker Compose
 
-Docker Compose allows you to run both applications with a single command:
+Docker Compose allows you to run the movement speed API with a single command:
 
 ```bash
 # Set your Riot API key in the environment
@@ -144,9 +146,27 @@ export RIOT_API_KEY=your_api_key
 docker-compose up
 ```
 
+### Running the Consumer Application with LocalStack
+
+To run the consumer application with LocalStack for AWS RDS emulation:
+
+```bash
+# Set your Riot API key in the environment
+export RIOT_API_KEY=your_api_key
+
+# Run the local stack with consumer application
+docker-compose -f docker-compose.local.yml up
+```
+
+This will:
+- Start the movement speed API
+- Start LocalStack with RDS emulation
+- Start the consumer application that fetches data from the API and stores it in RDS
+
+
 ## Kubernetes Setup
 
-This project can be deployed to a Kubernetes cluster, allowing for scalable and resilient operation of the movement speed API.
+This project can be deployed to Kubernetes clusters, allowing for scalable and resilient operation of both the movement speed API and the consumer application with RDS integration.
 
 ### Prerequisites for Mac
 
@@ -173,6 +193,12 @@ This project can be deployed to a Kubernetes cluster, allowing for scalable and 
    brew install skaffold
    ```
 
+5. **Set Docker Desktop as your Kubernetes context**
+
+   ```bash
+   kubectl config use-context docker-desktop
+   ```
+
 ### Configuring the Kubernetes Deployment
 
 1. **Create a Secret for the Riot API Key**
@@ -193,20 +219,47 @@ This project can be deployed to a Kubernetes cluster, allowing for scalable and 
    kubectl apply -f kubernetes/riot-api-secret.yaml
    ```
 
-2. **Deploy the Application**
+2. **Deploy the API Application (First Cluster)**
 
    ```bash
-   kubectl apply -f kubernetes/api-deployment.yaml
-   kubectl apply -f kubernetes/api-service.yaml
+   # Create a namespace for the API application
+   kubectl create namespace api-cluster
+   
+   # Apply the manifests to the api-cluster namespace
+   kubectl apply -f kubernetes/api-deployment.yaml -n api-cluster
+   kubectl apply -f kubernetes/api-service.yaml -n api-cluster
+   kubectl apply -f kubernetes/riot-api-secret.yaml -n api-cluster
+   ```
+   
+3. **Deploy the Consumer Application with PostgreSQL (Second Cluster)**
+
+   ```bash
+   # Create a namespace for the consumer application
+   kubectl create namespace consumer-cluster
+   
+   # Apply the PostgreSQL deployment and service
+   kubectl apply -f kubernetes/consumer/postgres.yaml -n consumer-cluster
+   
+   # Apply the consumer deployment
+   kubectl apply -f kubernetes/consumer/deployment.yaml -n consumer-cluster
    ```
 
 ### Running with Skaffold (Local Development)
 
-Skaffold automates the workflow for building, pushing, and deploying your application:
+Skaffold automates the workflow for building, pushing, and deploying your applications:
+
+#### API Application (First Cluster)
 
 ```bash
 # Make sure you're in the project root directory
-skaffold dev
+skaffold dev -n api-cluster
+```
+
+#### Consumer Application (Second Cluster)
+
+```bash
+# Make sure you're in the project root directory
+skaffold -f skaffold.consumer.yaml dev -n consumer-cluster
 ```
 
 This will:
@@ -215,13 +268,15 @@ This will:
 - Stream logs from deployed pods
 - Automatically redeploy when files change
 
-### Accessing the API
+### Accessing the Applications
+
+#### Accessing the API (First Cluster)
 
 Once deployed, you can access the API using:
 
 ```bash
 # Get the service URL (if using LoadBalancer type)
-kubectl get service movement-speed-api
+kubectl get service movement-speed-api -n api-cluster
 
 # For local development with Docker Desktop, the service is usually available at:
 curl http://localhost:80/api/champions/movement-speed
@@ -230,21 +285,120 @@ curl http://localhost:80/api/champions/movement-speed
 curl http://localhost:80/health
 ```
 
-### Monitoring the Deployment
+#### Accessing PostgreSQL Database (Second Cluster)
+
+You can interact with the PostgreSQL database using kubectl:
+
+```bash
+# Get the PostgreSQL pod name
+POSTGRES_POD=$(kubectl get pods -l app=postgres -n consumer-cluster -o jsonpath='{.items[0].metadata.name}')
+
+# List all champions in the database
+kubectl exec -it $POSTGRES_POD -n consumer-cluster -- psql -U postgres -d champions -c "SELECT * FROM champions ORDER BY rank LIMIT 10;"
+
+# Count total champions in the database
+kubectl exec -it $POSTGRES_POD -n consumer-cluster -- psql -U postgres -d champions -c "SELECT COUNT(*) FROM champions;"
+```
+
+If you're using LocalStack for AWS RDS emulation, you can interact with it using the AWS CLI:
+
+```bash
+# Configure AWS CLI to use LocalStack endpoint
+export AWS_ENDPOINT_URL=http://localhost:4566
+export AWS_DEFAULT_REGION=us-east-1
+export AWS_ACCESS_KEY_ID=test
+export AWS_SECRET_ACCESS_KEY=test
+
+# List RDS instances
+aws rds describe-db-instances --endpoint-url=$AWS_ENDPOINT_URL
+
+# Connect to the PostgreSQL database (requires psql client)
+psql -h localhost -p 5432 -U postgres -d champions
+```
+
+### Monitoring the Deployments
+
+#### Monitoring the API Deployment (First Cluster)
 
 ```bash
 # Check deployment status
-kubectl get deployments
+kubectl get deployments -n api-cluster
 
 # Check pods
-kubectl get pods
+kubectl get pods -n api-cluster
 
 # View logs
-kubectl logs -l app=movement-speed-api
+kubectl logs -l app=movement-speed-api -n api-cluster
 
 # Describe a pod for detailed information
-kubectl describe pod <pod-name>
+kubectl describe pod <pod-name> -n api-cluster
 ```
+
+#### Monitoring the Consumer Deployment (Second Cluster)
+
+```bash
+# Check deployment status
+kubectl get deployments -n consumer-cluster
+
+# Check pods
+kubectl get pods -n consumer-cluster
+
+# View logs for the consumer application
+kubectl logs -l app=champion-consumer -n consumer-cluster
+
+# View logs for LocalStack
+kubectl logs -l app=localstack -n consumer-cluster
+
+# Describe a pod for detailed information
+kubectl describe pod <pod-name> -n consumer-cluster
+```
+
+#### Cross-Cluster Communication
+
+The consumer application is configured to communicate with the API in the first cluster using Kubernetes DNS. The API URL is set to:
+
+```
+http://movement-speed-api.api-cluster.svc.cluster.local
+```
+
+This allows the consumer application to access the API across cluster boundaries.
+
+### Visualizing Kubernetes with Dashboard
+
+To get a visual interface for your Kubernetes clusters:
+
+1. **Start Minikube** (if not already running)
+   ```bash
+   minikube start
+   ```
+
+2. **Enable the Dashboard Addon**
+   ```bash
+   minikube addons enable dashboard
+   ```
+
+3. **Launch the Dashboard**
+   ```bash
+   minikube dashboard
+   ```
+
+This will open a web browser with the Kubernetes Dashboard, allowing you to visualize and manage your clusters, deployments, pods, and other resources.
+
+### Cleaning Up Temporary Files
+
+If you encounter issues with LocalStack or other services due to temporary files:
+
+```bash
+# Remove LocalStack temporary directory
+sudo rm -rf /tmp/localstack
+
+# Remove Docker volumes (if needed)
+docker volume prune -f
+
+# Restart Docker (if needed)
+sudo systemctl restart docker
+```
+
 
 Or pass the API key directly:
 

@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # First application - Movement Speed API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      - RIOT_API_KEY=${RIOT_API_KEY}
+    ports:
+      - "8080:8080"
+    networks:
+      - poc-network
+    restart: on-failure
+
+  # Second application - Consumer
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer
+    environment:
+      - API_BASE_URL=http://api:8080
+      - AWS_ENDPOINT=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - DB_HOST=localstack
+      - DB_PORT=5432
+      - DB_NAME=champions
+      - SYNC_INTERVAL=60
+    depends_on:
+      - api
+      - localstack
+    networks:
+      - poc-network
+    restart: on-failure
+
+  # LocalStack for AWS services emulation
+  localstack:
+    image: localstack/localstack:latest
+    environment:
+      - SERVICES=rds
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    ports:
+      - "4566:4566"
+    volumes:
+      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - poc-network
+
+networks:
+  poc-network:
+    driver: bridge

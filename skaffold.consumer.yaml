@@ -1,0 +1,17 @@
+apiVersion: skaffold/v2beta29
+kind: Config
+build:
+  artifacts:
+  - image: champion-consumer
+    context: .
+    docker:
+      dockerfile: Dockerfile.consumer
+  - image: localstack/localstack
+    context: .
+    docker:
+      dockerfile: Dockerfile.localstack
+deploy:
+  kubectl:
+    manifests:
+    - kubernetes/consumer/deployment.yaml
+    - kubernetes/consumer/localstack.yaml

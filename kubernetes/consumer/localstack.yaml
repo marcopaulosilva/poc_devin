@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: localstack
+  labels:
+    app: localstack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: localstack
+  template:
+    metadata:
+      labels:
+        app: localstack
+    spec:
+      containers:
+      - name: localstack
+        image: localstack/localstack:latest
+        ports:
+        - containerPort: 4566
+        env:
+        - name: SERVICES
+          value: "rds"
+        - name: DEBUG
+          value: "1"
+        - name: DATA_DIR
+          value: "/var/lib/localstack/data"
+        - name: TMPDIR
+          value: "/var/lib/localstack/tmp"
+        - name: DOCKER_HOST
+          value: ""
+        - name: DISABLE_CORS_CHECKS
+          value: "1"
+        - name: DISABLE_CUSTOM_CORS_S3
+          value: "1"
+        - name: SKIP_SSL_CERT_DOWNLOAD
+          value: "1"
+        - name: LAMBDA_EXECUTOR
+          value: "local"
+        - name: LOCALSTACK_HOST
+          value: "localhost"
+        - name: AWS_DEFAULT_REGION
+          value: "us-east-1"
+        - name: AWS_ACCESS_KEY_ID
+          value: "test"
+        - name: AWS_SECRET_ACCESS_KEY
+          value: "test"
+        volumeMounts:
+        - name: localstack-data
+          mountPath: /var/lib/localstack
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+      volumes:
+      - name: localstack-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: localstack
+spec:
+  selector:
+    app: localstack
+  ports:
+  - port: 4566
+    targetPort: 4566
+  type: ClusterIP
