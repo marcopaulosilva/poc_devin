@@ -49,6 +49,11 @@ The project follows clean architecture with the following layers:
    - Follow the installation instructions
 
 3. Obtain a Riot API Key from [Riot Developer Portal](https://developer.riotgames.com/)
+   - Sign up for an account at [https://developer.riotgames.com/](https://developer.riotgames.com/)
+   - Log in and navigate to the Dashboard
+   - Click on "Generate API Key" button
+   - Copy the generated API key for use in the application
+   - Note: Development API keys expire every 24 hours and have limited request rates
 
 ## Running the Applications with Go
 
@@ -363,26 +368,30 @@ http://movement-speed-api.api-cluster.svc.cluster.local
 
 This allows the consumer application to access the API across cluster boundaries.
 
-### Visualizing Kubernetes with Dashboard
+### Visualizing Kubernetes with Lens
 
-To get a visual interface for your Kubernetes clusters:
+To get a visual interface for your Kubernetes clusters, you can use Lens - a powerful Kubernetes IDE:
 
-1. **Start Minikube** (if not already running)
+1. **Install Lens**
    ```bash
-   minikube start
+   # For Mac
+   brew install --cask lens
    ```
 
-2. **Enable the Dashboard Addon**
-   ```bash
-   minikube addons enable dashboard
-   ```
+2. **Launch Lens and Connect to Your Cluster**
+   - Open Lens application
+   - Click "Add Cluster" in the left sidebar
+   - Select your kubeconfig file (usually at ~/.kube/config)
+   - Your Docker Desktop Kubernetes context will appear in the clusters list
+   - Click on it to connect and view your resources
 
-3. **Launch the Dashboard**
-   ```bash
-   minikube dashboard
-   ```
+3. **Navigate Your Resources**
+   - Use the left sidebar to browse Namespaces, Deployments, Pods, Services, etc.
+   - View logs, resource usage, and events for any resource
+   - Execute commands directly in pod terminals
+   - Edit and apply YAML configurations
 
-This will open a web browser with the Kubernetes Dashboard, allowing you to visualize and manage your clusters, deployments, pods, and other resources.
+Lens provides a comprehensive view of your Kubernetes resources across both clusters, making it easier to monitor and troubleshoot your deployments.
 
 ### Cleaning Up Temporary Files
 
