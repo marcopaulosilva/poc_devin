@@ -1,6 +1,6 @@
-# Consumer Application with LocalStack Architecture
+# Consumer Application with PostgreSQL Architecture
 
-This document provides a visual representation of the consumer application architecture with LocalStack RDS integration, showing the relationships between components and the flow of data through the system.
+This document provides a visual representation of the consumer application architecture with PostgreSQL integration, showing the relationships between components and the flow of data through the system.
 
 ## Multi-Cluster Architecture Overview
 
@@ -16,8 +16,8 @@ graph TD
     
     subgraph "Consumer Cluster"
         D[Champion Consumer Deployment]
-        E[LocalStack Deployment]
-        F[LocalStack Service]
+        E[PostgreSQL Deployment]
+        F[PostgreSQL Service]
     end
     
     subgraph "External"
@@ -83,7 +83,7 @@ sequenceDiagram
     participant Movement Speed API
     participant Riot API
     participant Champion Repository
-    participant LocalStack RDS
+    participant PostgreSQL
     
     Consumer->>API Client: GetChampionsByMovementSpeed()
     API Client->>Movement Speed API: GET /api/champions/movement-speed
@@ -92,29 +92,29 @@ sequenceDiagram
     Movement Speed API-->>API Client: Sorted Champions JSON
     API Client-->>Consumer: Champion Records
     Consumer->>Champion Repository: SaveChampions()
-    Champion Repository->>LocalStack RDS: INSERT/UPDATE Champions
-    LocalStack RDS-->>Champion Repository: Success
+    Champion Repository->>PostgreSQL: INSERT/UPDATE Champions
+    PostgreSQL-->>Champion Repository: Success
     Champion Repository-->>Consumer: Success
 ```
 
-## LocalStack RDS Integration
+## PostgreSQL Database Integration
 
-The following diagram shows how LocalStack emulates AWS RDS for local development:
+The following diagram shows the PostgreSQL database integration for the consumer application:
 
 ```mermaid
 graph TD
-    subgraph "Docker Environment"
+    subgraph "Kubernetes Environment"
         A[Consumer Application]
-        B[LocalStack Container]
+        B[PostgreSQL Container]
         
-        subgraph "LocalStack"
-            C[RDS Emulation]
-            D[PostgreSQL Engine]
-            E[Champions Database]
+        subgraph "PostgreSQL"
+            C[PostgreSQL Engine]
+            D[Champions Database]
+            E[Champions Table]
         end
     end
     
-    A -->|"AWS SDK Calls"| B
+    A -->|"SQL Queries"| B
     B --> C
     C --> D
     D --> E
@@ -140,4 +140,4 @@ graph TD
 
 ### Kubernetes Components
 - **kubernetes/consumer/deployment.yaml**: Deployment configuration for the consumer application
-- **kubernetes/consumer/localstack.yaml**: Deployment and service configuration for LocalStack
+- **kubernetes/consumer/postgres.yaml**: Deployment and service configuration for PostgreSQL
